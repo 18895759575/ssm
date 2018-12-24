@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--1 开启组件扫描-->
+    <context:component-scan base-package="com.itheima"/>
+    <!--2 引入外部数据库资源配置文件-->
+    <context:property-placeholder location="classpath:db.properties"/>
+    <!--3 阿里巴巴数据库-->
+    <bean id="ds" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.pwd}"/>
+    </bean>
+
+    <!--把Mybatis交给Spring管理-->
+    <!--4 创建SqlSession-->
+    <bean id="factory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="ds"/>
+        <!--实体类起别名-->
+        <property name="typeAliasesPackage" value="com.itheima.domain"/>
+    </bean>
+    <!--5 创建Mapper代理-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--配置Mapper映射文件位置-->
+        <property name="basePackage" value="com.itheima.mapper"/>
+    </bean>
+    <!--6 开启事务管理器对象-->
+    <bean  id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="ds"/>
+    </bean>
+    <!--7 开启事物注解支持-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
